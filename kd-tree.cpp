@@ -83,7 +83,8 @@ Node* findMedian(Node *start, Node *end, int curr_dim) {
     double pivot;
     while(true) {
 
-        pivot = (end-1)->point[curr_dim];
+        pivot = md->point[curr_dim];
+        swap(md, end - 1);
         for (store = p = start; p < end; p++) {
             if (p->point[curr_dim] < pivot) {
                 swap(p, store);

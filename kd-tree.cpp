@@ -2,9 +2,8 @@
 using namespace std;
 
 const int k = 2;
-int n;
 #define COUNT 10
-
+vector<vector<double> > v;
 // A structure to represent node of kd tree
 struct Node
 {
@@ -12,15 +11,6 @@ struct Node
     Node *left, *right;
 };
 
-
-bool arePointsSame(int point1[], int point2[]) {
-    // Compare individual pointinate values
-    for (int i = 0; i < k; ++i)
-        if (point1[i] != point2[i])
-            return false;
-
-    return true;
-}
 
 void print2DUtil(Node *root, int space)
 {
@@ -117,17 +107,89 @@ Node* buildKDtreeRec(Node *t, int len, int i, int dim) {
     return med;
 }
 
+bool isInrange(double arr[], vector<double> range_x, vector<double> range_y) {
+    if(arr[0] >= range_x[0] && arr[0] <= range_x[1] && arr[1] >= range_y[0] && arr[1] <= range_y[1])
+        return true;
+    return false;
+}
+bool isLeaf(Node* root) {
+    if(root->left == NULL && root->right == NULL)
+        return true;
+    return false;
+}
+int isIntersect(double arr[], vector<double> range_x, vector<double> range_y, int dim) {
+    if(dim%2) {
+        if(arr[1] >= range_y[0] && arr[1] <= range_y[1]) {
+            return 1;
+        }
+        else if(arr[1] >= range_y[1]) {
+            return 2;
+        }
+        else if(arr[1] <= range_y[0]) {
+            return 3;
+        }
+    }
+    else {
+        if(arr[0] >= range_x[0] && arr[0] <= range_x[1]) {
+            return 1;
+        }
+        else if(arr[0] >= range_x[1]) {
+            return 2;
+        }
+        else if(arr[0] <= range_x[0]) {
+            return 3;
+        }
+    }
+}
+
+void pointsInRectangle(Node *root, vector<double> range_x, vector<double> range_y, int dim) {
+    if(isLeaf(root)) {
+        if(isInrange(root->point, range_x, range_y)) {
+            vector<double> temp;
+            temp.push_back(root->point[0]);
+            temp.push_back(root->point[1]);
+            v.push_back(temp);
+        }
+    }
+    else if(isIntersect(root->point, range_x, range_y, dim) == 1) {
+        pointsInRectangle(root->left, range_x, range_y, (dim+1)%k);
+        pointsInRectangle(root->right, range_x, range_y, (dim+1)%k);
+    }
+    else if(isIntersect(root->point, range_x, range_y, dim) == 2) {
+        pointsInRectangle(root->left, range_x, range_y, (dim+1)%k);
+    }
+    else if(isIntersect(root->point, range_x, range_y, dim) == 3) {
+        pointsInRectangle(root->right, range_x, range_y, (dim+1)%k);
+    }
+
+}
+
 // Driver program to test above functions
 int main() {
     Node *root = NULL;
     int points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, {9, 1}, {2, 7}, {10, 19}};
-    n = sizeof(points)/sizeof(points[0]);
+    int n = sizeof(points)/sizeof(points[0]);
     Node nodes[n];
     for(int i = 0; i < n; i++) {
         nodes[i] = (*newNode(points[i]));
     }
     root = buildKDtreeRec(nodes, n, 0, k);
-    print2D(root);
+    //print2D(root);
 
+    vector<double> range_x(2);
+    vector<double> range_y(2);
+
+    range_x[0] = 9;
+    range_x[1] = 9;
+
+    range_y[0] = 1;
+    range_y[1] = 1;
+    pointsInRectangle(root, range_x, range_y, 0);
+    for(int i = 0; i < v.size(); i++) {
+        for(int j = 0; j < 2; j++) {
+            cout << v[i][j] << " ";
+        }
+        cout << "\n";
+    }
     return 0;
 }

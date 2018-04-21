@@ -22,9 +22,9 @@ Node* newNode(int arr[]) {
 
 void swap(Node *a, Node *b) {
     double temp[k];
-    memcpy(tmp, a->point, sizeof(temp));
+    memcpy(temp, a->point, sizeof(temp));
     memcpy(a->point, b->point, sizeof(temp));
-    memcpy(b->point, tmp, sizeof(temp));
+    memcpy(b->point, temp, sizeof(temp));
 }
 
 Node* findMedian(Node *start, Node *end, int curr_dim) {
@@ -32,7 +32,7 @@ Node* findMedian(Node *start, Node *end, int curr_dim) {
         return NULL;
     if(end == start + 1)
         return min(end, start);
-    Node *p, *store, *md = (start + end)/2;
+    Node *p, *store, *md = start + (end - start) / 2;
     double pivot;
     while(true) {
         pivot = md->point[curr_dim];
@@ -59,11 +59,11 @@ Node* buildKDtreeRec(Node *t, int len, int i, int dim) {
     Node *med;
     if(!len)
         return 0;
-    n = findMedian(t, t+len, i);
+    med = findMedian(t, t+len, i);
     i = (i+1)%dim;
-    n->left = buildKDtreeRec(t, n - t, i);
-    n->right = buildKDtreeRec(n+1, (t+len) - (n+1), i);
-    return n;
+    med->left = buildKDtreeRec(t, med - t, i, dim);
+    med->right = buildKDtreeRec(med+1, (t+len) - (med+1), i, dim);
+    return med;
 }
 
 bool arePointsSame(int point1[], int point2[]) {
@@ -83,10 +83,10 @@ int main() {
                        {9, 1}, {2, 7}, {10, 19}};
 
     n = sizeof(points)/sizeof(points[0]);
-    Node nodes[];
+    Node nodes[n];
     for(int i = 0; i < n; i++) {
-        nodes + i = newNode(point + i)
+        nodes[i] = (*newNode(points[i]));
     }
-    root = make_tree(nodes, n, 0, k);
+    root = buildKDtreeRec(nodes, n, 0, k);
     return 0;
 }

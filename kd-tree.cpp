@@ -250,7 +250,7 @@ void pointsInRectangle(Node *root, vector<double> range_x_rec, vector<double> ra
 
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
-            
+
     glPushMatrix();
         string s;
         void * font = GLUT_BITMAP_8_BY_13;;
@@ -268,11 +268,11 @@ void display(void) {
                     glVertex3f(median_y[i].first, 100, 0.0);
                 }
             glEnd();
-            
+
             if (!median_y[i].second) {
                 glColor3f(0.4f, 0.2f, 0.5f);
                 glRasterPos2f(median_y[i].first + 0.2f, -4.0f);
-                s = to_string(i);
+                s = to_string(i+1);
 
                 for (string::iterator i = s.begin(); i != s.end(); ++i) {
                     char c = *i;
@@ -281,8 +281,8 @@ void display(void) {
             } else {
                 glColor3f(0.2f, 0.5f, 0.5f);
                 glRasterPos2f(-4.0f, median_y[i].first + 0.2f);
-                s = to_string(i);
-                
+                s = to_string(i+1);
+
                 for (string::iterator i = s.begin(); i != s.end(); ++i) {
                     char c = *i;
                     glutBitmapCharacter(font, c);
@@ -290,7 +290,7 @@ void display(void) {
             }
         }
     glPopMatrix();
-    
+
     glPushMatrix();
     glColor3f(1.0, 1.0, 1.0);
     glPointSize(8);

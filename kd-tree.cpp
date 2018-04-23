@@ -1,7 +1,17 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
+
 using namespace std;
 
 const int k = 2;
+int points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, {9, 1}, {2, 7}, {10, 19}};
+
+vector<double> range_x(2);
+vector<double> range_y(2);
+vector<pair <int, bool> > median_y;
+
 #define COUNT 10
 vector<vector<double> > v;
 // A structure to represent node of kd tree
@@ -121,6 +131,12 @@ Node* buildKDtreeRec(Node *t, int len, int i, int dim) {
         return t;
     }
     med2 = findMedian(t, t + len, i);
+    if(i%2) {
+        median_y.push_back(make_pair(med2->point[1], true));
+    }
+    else {
+        median_y.push_back(make_pair(med2->point[0], false));
+    }
     med->point[0] = med2->point[0];
     med->point[1] = med2->point[1];
     i = (i+1)%dim;
@@ -232,10 +248,97 @@ void pointsInRectangle(Node *root, vector<double> range_x_rec, vector<double> ra
     }
 }
 
+void display(void) {
+    glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
+            
+    glPushMatrix();
+        string s;
+        void * font = GLUT_BITMAP_8_BY_13;;
+        for (int i = 0; i < median_y.size(); i++) {
+            glBegin(GL_LINE_STRIP);
+                if (median_y[i].second) {
+                    glColor3f(1.0, 1.0, 0.0);
+
+                    glVertex3f(-100.0, median_y[i].first, 0.0);
+                    glVertex3f(100.0, median_y[i].first, 0.0);
+                } else {
+                    glColor3f(1.0, 0.4, 0.5);
+
+                    glVertex3f(median_y[i].first, -100.0, 0.0);
+                    glVertex3f(median_y[i].first, 100, 0.0);
+                }
+            glEnd();
+            
+            if (!median_y[i].second) {
+                glColor3f(0.4f, 0.2f, 0.5f);
+                glRasterPos2f(median_y[i].first + 0.2f, -4.0f);
+                s = to_string(i);
+
+                for (string::iterator i = s.begin(); i != s.end(); ++i) {
+                    char c = *i;
+                    glutBitmapCharacter(font, c);
+                }
+            } else {
+                glColor3f(0.2f, 0.5f, 0.5f);
+                glRasterPos2f(-4.0f, median_y[i].first + 0.2f);
+                s = to_string(i);
+                
+                for (string::iterator i = s.begin(); i != s.end(); ++i) {
+                    char c = *i;
+                    glutBitmapCharacter(font, c);
+                }
+            }
+        }
+    glPopMatrix();
+    
+    glPushMatrix();
+    glColor3f(1.0, 1.0, 1.0);
+    glPointSize(8);
+    glBegin(GL_POINTS);
+        for (int i = 0; i < sizeof(points)/sizeof(points[0]); i++) {
+            glColor3f(1.0, 1.0, 1.0);
+            glVertex2f(points[i][0], points[i][1]);
+        }
+    glEnd();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor3f (0.5, 0.6, 0.3);
+    glBegin(GL_LINE_STRIP);
+        glVertex2f(range_x[0], range_y[0]);
+        glVertex2f(range_x[1], range_y[0]);
+        glVertex2f(range_x[1], range_y[1]);
+        glVertex2f(range_x[0], range_y[1]);
+        glVertex2f(range_x[0], range_y[0]);
+    glEnd();
+    glPopMatrix();
+
+    glutSwapBuffers();
+}
+
+void reshape(int w, int h) {
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    if (w <= h)
+        glOrtho(-25.0, 25.0, -25.0*(GLfloat)h/(GLfloat)w,
+                25.0*(GLfloat)h/(GLfloat)w, -25.0, 25.0);
+    else
+        glOrtho(-50.0*(GLfloat)w/(GLfloat)h,
+                50.0*(GLfloat)w/(GLfloat)h, -50.0, 50.0, -50.0, 50.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
 // Driver program to test above functions
-int main() {
+int main(int argc, char **argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode (GLUT_DOUBLE| GLUT_RGB |GLUT_DEPTH);
+    glutInitWindowSize (750, 750);
+    glutInitWindowPosition (100, 100);
+    glutCreateWindow ("KD-Tree");
+
     Node *root = NULL;
-    int points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, {9, 1}, {2, 7}, {10, 19}};
     int n = sizeof(points)/sizeof(points[0]);
     Node nodes[n];
     for(int i = 0; i < n; i++) {
@@ -244,8 +347,6 @@ int main() {
     root = buildKDtreeRec(nodes, n, 0, k);
     print2D(root);
 
-    vector<double> range_x(2);
-    vector<double> range_y(2);
     vector<double> range_x_reg(2);
     vector<double> range_y_reg(2);
 
@@ -262,7 +363,9 @@ int main() {
     range_y_reg[1] = 1000;
 
     pointsInRectangle(root, range_x, range_y, range_x_reg, range_y_reg, 0);
-
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutMainLoop();
     for(int i = 0; i < v.size(); i++) {
         for(int j = 0; j < 2; j++) {
             cout << v[i][j] << " ";

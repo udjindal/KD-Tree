@@ -5,15 +5,38 @@ const int k = 2;
 #define COUNT 10
 vector<vector<double> > v;
 // A structure to represent node of kd tree
-struct Node
-{
+struct Node {
     double point[k]; // To store k dimensional point
     Node *left, *right;
 };
 
+void reportSubtree(Node *root) {
+    // if node is null, return
+    if (!root)
+        return;
 
-void print2DUtil(Node *root, int space)
-{
+    // if node is leaf node, print its data
+    if (!root->left && !root->right)
+    {
+        vector<double> temp;
+        temp.push_back(root->point[0]);
+        temp.push_back(root->point[1]);
+        v.push_back(temp);
+        return;
+    }
+
+    // if left child exists, check for leaf
+    // recursively
+    if (root->left)
+       reportSubtree(root->left);
+
+    // if right child exists, check for leaf
+    // recursively
+    if (root->right)
+       reportSubtree(root->right);
+}
+
+void print2DUtil(Node *root, int space) {
     // Base case
     if (root == NULL)
         return;
@@ -36,8 +59,7 @@ void print2DUtil(Node *root, int space)
 }
 
 // Wrapper over print2DUtil()
-void print2D(Node *root)
-{
+void print2D(Node *root) {
    // Pass initial space count as 0
    print2DUtil(root, 0);
 }
@@ -117,51 +139,96 @@ bool isLeaf(Node* root) {
         return true;
     return false;
 }
-int isIntersect(double arr[], vector<double> range_x, vector<double> range_y, int dim) {
-    if(dim%2) {
-        if(arr[1] >= range_y[0] && arr[1] <= range_y[1]) {
-            return 1;
-        }
-        else if(arr[1] >= range_y[1]) {
-            return 2;
-        }
-        else if(arr[1] <= range_y[0]) {
-            return 3;
-        }
-    }
+
+int rectPos(Node *root, vector<double> range_x_rec, vector<double> range_y_rec, vector<double> range_x_reg, vector<double> range_y_reg, int dim) {
+    if(range_x_reg[0] >= range_x_rec[0] && range_x_reg[1] <= range_x_rec[1] && range_y_reg[0] >= range_y_rec[0] && range_y_reg[1] <= range_y_rec[1])
+        return 1;
+    else if (range_x_rec[0] > range_x_reg[1] || range_x_rec[1] < range_x_reg[0])
+        return 2;
     else {
-        if(arr[0] >= range_x[0] && arr[0] <= range_x[1]) {
-            return 1;
+        if(dim%2) {
+            if(range_y_rec[1] < root->point[1])
+                return 3;
+            else if(range_y_rec[0] > root->point[1])
+                return 4;
+            else
+                return 5;
         }
-        else if(arr[0] >= range_x[1]) {
-            return 2;
-        }
-        else if(arr[0] <= range_x[0]) {
-            return 3;
+        else {
+            if(range_x_rec[1] < root->point[0])
+                return 3;
+            else if(range_x_rec[0] > root->point[0])
+                return 4;
+            else
+                return 5;
         }
     }
 }
 
-void pointsInRectangle(Node *root, vector<double> range_x, vector<double> range_y, int dim) {
+void pointsInRectangle(Node *root, vector<double> range_x_rec, vector<double> range_y_rec, vector<double> range_x_reg, vector<double> range_y_reg, int dim) {
     if(isLeaf(root)) {
-        if(isInrange(root->point, range_x, range_y)) {
+        if(isInrange(root->point, range_x_rec, range_y_rec)) {
             vector<double> temp;
             temp.push_back(root->point[0]);
             temp.push_back(root->point[1]);
             v.push_back(temp);
         }
     }
-    else if(isIntersect(root->point, range_x, range_y, dim) == 1) {
-        pointsInRectangle(root->left, range_x, range_y, (dim+1)%k);
-        pointsInRectangle(root->right, range_x, range_y, (dim+1)%k);
+    else {
+        //cout << root->point[0] << " " << root->point[1] << " " <<rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) << '\n';
+        vector<double> range_y_reg_left(2);
+        vector<double> range_y_reg_right(2);
+        vector<double> range_x_reg_left(2);
+        vector<double> range_x_reg_right(2);
+        if(dim%2) {
+            range_y_reg_left[0] = range_y_reg[0];
+            range_y_reg_left[1] = root->point[1];
+            range_y_reg_right[0] = root->point[1];
+            range_y_reg_right[1] = range_y_reg[1];
+        }
+        else {
+            range_x_reg_left[0] = range_x_reg[0];
+            range_x_reg_left[1] = root->point[0];
+            range_x_reg_right[0] = root->point[0];
+            range_x_reg_right[1] = range_x_reg[1];
+        }
+        // region lies inside the rectange
+        if(rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) == 1) {
+            reportSubtree(root);
+        }
+        // no intersection between rectangle and region
+        else if(rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) == 2) {
+        }
+        // will lie left side after new partition
+        else if(rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) == 3) {
+            if(dim%2) {
+                pointsInRectangle(root->left, range_x_rec, range_y_rec, range_x_reg, range_y_reg_left, (dim+1)%2);
+            }
+            else {
+                pointsInRectangle(root->left, range_x_rec, range_y_rec, range_x_reg_left, range_y_reg, (dim+1)%2);
+            }
+        }
+        // will lie right side after new partition
+        else if(rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) == 4) {
+            if(dim%2) {
+                pointsInRectangle(root->right, range_x_rec, range_y_rec, range_x_reg, range_y_reg_right, (dim+1)%2);
+            }
+            else {
+                pointsInRectangle(root->right, range_x_rec, range_y_rec, range_x_reg_right, range_y_reg, (dim+1)%2);
+            }
+        }
+        // will intersect the new partition
+        else if(rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) == 5) {
+            if(dim%2) {
+                pointsInRectangle(root->left, range_x_rec, range_y_rec, range_x_reg, range_y_reg_left, (dim+1)%2);
+                pointsInRectangle(root->right, range_x_rec, range_y_rec, range_x_reg, range_y_reg_right, (dim+1)%2);
+            }
+            else {
+                pointsInRectangle(root->left, range_x_rec, range_y_rec, range_x_reg_left, range_y_reg, (dim+1)%2);
+                pointsInRectangle(root->right, range_x_rec, range_y_rec, range_x_reg_right, range_y_reg, (dim+1)%2);
+            }
+        }
     }
-    else if(isIntersect(root->point, range_x, range_y, dim) == 2) {
-        pointsInRectangle(root->left, range_x, range_y, (dim+1)%k);
-    }
-    else if(isIntersect(root->point, range_x, range_y, dim) == 3) {
-        pointsInRectangle(root->right, range_x, range_y, (dim+1)%k);
-    }
-
 }
 
 // Driver program to test above functions
@@ -174,17 +241,27 @@ int main() {
         nodes[i] = (*newNode(points[i]));
     }
     root = buildKDtreeRec(nodes, n, 0, k);
-    //print2D(root);
+    print2D(root);
 
     vector<double> range_x(2);
     vector<double> range_y(2);
+    vector<double> range_x_reg(2);
+    vector<double> range_y_reg(2);
 
-    range_x[0] = 9;
-    range_x[1] = 9;
+    range_x[0] = 6;
+    range_x[1] = 6;
 
-    range_y[0] = 1;
-    range_y[1] = 1;
-    pointsInRectangle(root, range_x, range_y, 0);
+    range_y[0] = 12;
+    range_y[1] = 12;
+
+    range_x_reg[0] = -1000;
+    range_x_reg[1] = 1000;
+
+    range_y_reg[0] = -1000;
+    range_y_reg[1] = 1000;
+
+    pointsInRectangle(root, range_x, range_y, range_x_reg, range_y_reg, 0);
+
     for(int i = 0; i < v.size(); i++) {
         for(int j = 0; j < 2; j++) {
             cout << v[i][j] << " ";

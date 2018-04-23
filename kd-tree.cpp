@@ -141,13 +141,13 @@ bool isLeaf(Node* root) {
 }
 
 int rectPos(Node *root, vector<double> range_x_rec, vector<double> range_y_rec, vector<double> range_x_reg, vector<double> range_y_reg, int dim) {
-    if(range_x_reg[0] >= range_x_rec[0] && range_x_reg[1] <= range_x_rec[1] && range_y_reg[0] >= range_y_rec[0] && range_y_reg[1] <= range_y_rec[1])
+    if(range_x_reg[0] > range_x_rec[0] && range_x_reg[1] <= range_x_rec[1] && range_y_reg[0] > range_y_rec[0] && range_y_reg[1] <= range_y_rec[1])
         return 1;
     else if (range_x_rec[0] > range_x_reg[1] || range_x_rec[1] < range_x_reg[0])
         return 2;
     else {
         if(dim%2) {
-            if(range_y_rec[1] < root->point[1])
+            if(range_y_rec[1] <= root->point[1])
                 return 3;
             else if(range_y_rec[0] > root->point[1])
                 return 4;
@@ -155,7 +155,7 @@ int rectPos(Node *root, vector<double> range_x_rec, vector<double> range_y_rec, 
                 return 5;
         }
         else {
-            if(range_x_rec[1] < root->point[0])
+            if(range_x_rec[1] <= root->point[0])
                 return 3;
             else if(range_x_rec[0] > root->point[0])
                 return 4;
@@ -175,7 +175,7 @@ void pointsInRectangle(Node *root, vector<double> range_x_rec, vector<double> ra
         }
     }
     else {
-        //cout << root->point[0] << " " << root->point[1] << " " <<rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) << '\n';
+        cout << root->point[0] << " " << root->point[1] << " " <<rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) << '\n';
         vector<double> range_y_reg_left(2);
         vector<double> range_y_reg_right(2);
         vector<double> range_x_reg_left(2);
@@ -248,11 +248,11 @@ int main() {
     vector<double> range_x_reg(2);
     vector<double> range_y_reg(2);
 
-    range_x[0] = 6;
-    range_x[1] = 6;
+    range_x[0] = 2;
+    range_x[1] = 17;
 
-    range_y[0] = 12;
-    range_y[1] = 12;
+    range_y[0] = 1;
+    range_y[1] = 19;
 
     range_x_reg[0] = -1000;
     range_x_reg[1] = 1000;

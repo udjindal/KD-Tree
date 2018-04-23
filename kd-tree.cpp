@@ -198,6 +198,7 @@ void pointsInRectangle(Node *root, vector<double> range_x_rec, vector<double> ra
         }
         // no intersection between rectangle and region
         else if(rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) == 2) {
+            return;
         }
         // will lie left side after new partition
         else if(rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) == 3) {

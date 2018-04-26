@@ -6,7 +6,7 @@
 using namespace std;
 
 const int k = 2;
-int points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, {9, 1}, {2, 7}, {10, 19}};
+double points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, {9, 1}, {2, 7}, {10, 19}, {3, 20}};
 
 vector<double> range_x(2);
 vector<double> range_y(2);
@@ -14,7 +14,6 @@ vector<pair <int, bool> > median_y;
 
 #define COUNT 10
 vector<vector<double> > v;
-// A structure to represent node of kd tree
 struct Node {
     double point[k]; // To store k dimensional point
     Node *left, *right;
@@ -68,13 +67,13 @@ void print2DUtil(Node *root, int space) {
     print2DUtil(root->left, space);
 }
 
-// Wrapper over print2DUtil()
+
 void print2D(Node *root) {
    // Pass initial space count as 0
    print2DUtil(root, 0);
 }
 
-Node* newNode(int arr[]) {
+Node* newNode(double arr[]) {
     Node* temp = new Node;
     for (int i=0; i < k; i++)
        temp->point[i] = arr[i];
@@ -150,6 +149,7 @@ bool isInrange(double arr[], vector<double> range_x, vector<double> range_y) {
         return true;
     return false;
 }
+
 bool isLeaf(Node* root) {
     if(root->left == NULL && root->right == NULL)
         return true;
@@ -191,7 +191,7 @@ void pointsInRectangle(Node *root, vector<double> range_x_rec, vector<double> ra
         }
     }
     else {
-        cout << root->point[0] << " " << root->point[1] << " " <<rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) << '\n';
+        //cout << root->point[0] << " " << root->point[1] << " " <<rectPos(root, range_x_rec, range_y_rec, range_x_reg, range_y_reg, dim) << '\n';
         vector<double> range_y_reg_left(2);
         vector<double> range_y_reg_right(2);
         vector<double> range_x_reg_left(2);
@@ -363,14 +363,15 @@ int main(int argc, char **argv) {
     range_y_reg[1] = 1000;
 
     pointsInRectangle(root, range_x, range_y, range_x_reg, range_y_reg, 0);
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutMainLoop();
     for(int i = 0; i < v.size(); i++) {
         for(int j = 0; j < 2; j++) {
             cout << v[i][j] << " ";
         }
         cout << "\n";
     }
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutMainLoop();
+
     return 0;
 }

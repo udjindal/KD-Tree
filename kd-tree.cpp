@@ -299,6 +299,10 @@ void display(void) {
             glColor3f(1.0, 1.0, 1.0);
             glVertex2f(points[i][0], points[i][1]);
         }
+        for (int i = 0; i < v.size(); i++) {
+            glColor3f(3.0, 0.0, 1.0);
+            glVertex2f(v[i][0], v[i][1]);
+        }
     glEnd();
     glPopMatrix();
 
@@ -363,6 +367,7 @@ int main(int argc, char **argv) {
     range_y_reg[1] = 1000;
 
     pointsInRectangle(root, range_x, range_y, range_x_reg, range_y_reg, 0);
+    std::cout << v.size() << " points lie inside the rectangle that are:" << '\n';
     for(int i = 0; i < v.size(); i++) {
         for(int j = 0; j < 2; j++) {
             cout << v[i][j] << " ";

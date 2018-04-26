@@ -6,11 +6,12 @@
 using namespace std;
 
 const int k = 2;
-double points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, {9, 1}, {2, 7}, {10, 19}, {3, 20}};
+const int inf = 1000;
+double points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, {9, 1}, {2, 7}, {10, 19}, {3.4, 20.2}};
 
 vector<double> range_x(2);
 vector<double> range_y(2);
-vector<pair <int, bool> > median_y;
+vector<pair <double, bool> > median_y;
 
 #define COUNT 10
 vector<vector<double> > v;
@@ -360,11 +361,11 @@ int main(int argc, char **argv) {
     range_y[0] = 1;
     range_y[1] = 19;
 
-    range_x_reg[0] = -1000;
-    range_x_reg[1] = 1000;
+    range_x_reg[0] = -1*inf;
+    range_x_reg[1] = inf;
 
-    range_y_reg[0] = -1000;
-    range_y_reg[1] = 1000;
+    range_y_reg[0] = -1*inf;
+    range_y_reg[1] = inf;
 
     pointsInRectangle(root, range_x, range_y, range_x_reg, range_y_reg, 0);
     std::cout << v.size() << " points lie inside the rectangle that are:" << '\n';

@@ -368,7 +368,7 @@ int main(int argc, char **argv) {
     range_y_reg[1] = inf;
 
     pointsInRectangle(root, range_x, range_y, range_x_reg, range_y_reg, 0);
-    std::cout << v.size() << " points lie inside the rectangle that are:" << '\n';
+    std::cout << v.size() << " out of " << n << " points lie inside the rectangle that are:" << '\n';
     for(int i = 0; i < v.size(); i++) {
         for(int j = 0; j < 2; j++) {
             cout << v[i][j] << " ";
